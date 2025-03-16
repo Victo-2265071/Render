@@ -1,10 +1,10 @@
 // À ajuster selon la structure
-import db from '../config/db.js';
+import db from '../config/db_pg.js';
 
 const getPokemonFromID = (id) => {
     return new Promise((resolve, reject) => {
 
-        const requete = `SELECT * FROM pokemon WHERE id = ?`;
+        const requete = `SELECT * FROM pokemon WHERE id = $1`;
         const params = [id]
 
         db.query(requete, params, (erreur, resultat) => {
@@ -14,7 +14,7 @@ const getPokemonFromID = (id) => {
                 reject(erreur);
             }
             // Sinon je retourne le résultat sans faire de validation, c'est possible que le résultat soit vide
-            resolve(resultat);
+            resolve(resultat.rows);
         });
     });
 };
@@ -22,7 +22,7 @@ const getPokemonFromID = (id) => {
 const getPokemonPageFromType = (page, type) => {
     return new Promise((resolve, reject) => {
 
-        const requete = `SELECT * FROM pokemon WHERE (? IS NULL OR type_primaire = ? OR type_secondaire = ?) LIMIT 25 OFFSET ?`;
+        const requete = `SELECT * FROM pokemon WHERE ($1 IS NULL OR type_primaire = $2 OR type_secondaire = $3) LIMIT 25 OFFSET $4`;
         const params = [type, type, type, ( page - 1 ) * 25]
 
         db.query(requete, params, (erreur, resultat) => {
@@ -33,7 +33,7 @@ const getPokemonPageFromType = (page, type) => {
             }
             // Sinon je retourne le résultat sans faire de validation, c'est possible que le résultat soit vide
             resolve(
-                resultat
+                resultat.rows
             );
         });
     });
@@ -42,7 +42,7 @@ const getPokemonPageFromType = (page, type) => {
 const getPokemonCountFromType = (type) => {
     return new Promise((resolve, reject) => {
 
-        const requete = `SELECT COUNT(*) FROM pokemon WHERE (? IS NULL OR type_primaire = ? OR type_secondaire = ?)`;
+        const requete = `SELECT COUNT(*) FROM pokemon WHERE ($1 IS NULL OR type_primaire = $2 OR type_secondaire = $3)`;
         const params = [type, type, type]
 
         db.query(requete, params, (erreur, resultat) => {
@@ -53,7 +53,7 @@ const getPokemonCountFromType = (type) => {
             }
             // Sinon je retourne le résultat sans faire de validation, c'est possible que le résultat soit vide
             resolve(
-                resultat
+                resultat.rows
             );
         });
     });
@@ -63,7 +63,7 @@ const creerPokemon = (nom, type_primaire, type_secondaire, pv, attaque, defense)
     return new Promise((resolve, reject) => {
 
         const requete = `INSERT INTO pokemon (nom, type_primaire, type_secondaire, pv, attaque, defense)  
-                            VALUES (?, ?, ?, ?, ?, ?);`;
+                            VALUES ($1, $2, $3, $4, $5, $6);`;
         const params = [nom, type_primaire, type_secondaire, pv, attaque, defense]
 
         db.query(requete, params, (erreur, resultat) => {
@@ -74,7 +74,7 @@ const creerPokemon = (nom, type_primaire, type_secondaire, pv, attaque, defense)
             }
             // Sinon je retourne le résultat sans faire de validation, c'est possible que le résultat soit vide
             resolve(
-                resultat
+                resultat.rows
                 
             );
         });
@@ -86,13 +86,13 @@ const modifierPokemon = (id, nom, type_primaire, type_secondaire, pv, attaque, d
 
         const requete = `UPDATE pokemon 
                             SET 
-                                nom = ?,
-                                type_primaire = ?,
-                                type_secondaire = ?,
-                                pv = ?,
-                                attaque = ?,
-                                defense = ?
-                            WHERE id = ?;
+                                nom = $1,
+                                type_primaire = $2,
+                                type_secondaire = $3,
+                                pv = $4,
+                                attaque = $5,
+                                defense = $6
+                            WHERE id = $7;
                             `;
         const params = [nom, type_primaire, type_secondaire, pv, attaque, defense, id]
 
@@ -104,7 +104,7 @@ const modifierPokemon = (id, nom, type_primaire, type_secondaire, pv, attaque, d
             }
             // Sinon je retourne le résultat sans faire de validation, c'est possible que le résultat soit vide
             resolve(
-                resultat
+                resultat.rows
                 
             );
         });
@@ -114,7 +114,7 @@ const modifierPokemon = (id, nom, type_primaire, type_secondaire, pv, attaque, d
 const deletePokemonFromID = (id) => {
     return new Promise((resolve, reject) => {
 
-        const requete = `DELETE FROM pokemon WHERE id = ?`;
+        const requete = `DELETE FROM pokemon WHERE id = $1`;
         const params = [id]
 
         db.query(requete, params, (erreur, resultat) => {
@@ -124,7 +124,7 @@ const deletePokemonFromID = (id) => {
                 reject(erreur);
             }
             // Sinon je retourne le résultat sans faire de validation, c'est possible que le résultat soit vide
-            resolve(resultat);
+            resolve(resultat.rows);
         });
     });
 };
