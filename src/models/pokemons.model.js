@@ -22,8 +22,8 @@ const getPokemonFromID = (id) => {
 const getPokemonPageFromType = (page, type) => {
     return new Promise((resolve, reject) => {
 
-        const requete = `SELECT * FROM pokemon WHERE (type_primaire = $1 OR type_secondaire = $2) LIMIT 25 OFFSET $3`;
-        const params = [type, type, ( page - 1 ) * 25]
+        const requete = `SELECT * FROM pokemon WHERE ($1 IS NULL OR type_primaire = $2 OR type_secondaire = $3) LIMIT 25 OFFSET $4`;
+        const params = [type, type, type, ( page - 1 ) * 25]
 
         db.query(requete, params, (erreur, resultat) => {
             if (erreur) {
